@@ -229,9 +229,16 @@ function vAvatar(first) {
   const av = Object.assign({}, DEFAULT_AV, k.avatar || {});
   const photos = []; // {file, url} — zostają tylko w pamięci tej karty
   let aiNote = '';
+  // Postać 3D: id gotowej postaci, 'own' (własny model, np. z Meshy) albo null (rysowana)
+  const own3d = k.avatar3d && !k.avatar3d.id ? k.avatar3d : null;
+  let a3 = k.avatar3d ? (k.avatar3d.id || 'own') : null, stage3d = null, shown3d;
   view(`<div class="wrap maker">
     <div class="stage" id="stage"><div id="st-av"></div><h3>${esc(k.name)}</h3><p class="muted" id="st-style"></p></div>
     <div class="stack">
+      <div class="card stack"><h2 style="font-size:26px">⭐ Ruchoma postać 3D</h2>
+        <p class="muted">Wybierz gotową postać, która macha, skacze i tańczy w grach. Możesz też zostać przy rysowanej postaci ze zdjęć (kroki niżej).</p>
+        <div class="chars3d" id="chars3d"></div></div>
+      <div class="drawn stack" id="drawn">
       <div class="card stack"><h2 style="font-size:26px">1. Zdjęcia dziecka (do 3)</h2>
         <p class="muted">Najlepiej twarz z przodu, w dobrym świetle. AI obejrzy zdjęcia i narysuje podobną postać: kolor włosów, fryzurę, oczy, okulary, piegi.</p>
         <div class="photos" id="photos"></div>
@@ -245,13 +252,24 @@ function vAvatar(first) {
         <div><b>Fryzura</b><div class="chips" id="ch-hs"></div></div>
         <div><b>Oczy</b><div class="swatches" id="sw-eye"></div></div>
         <div class="chips" id="ch-x"></div>
-      </div>
+      </div></div>
       <div class="row"><button class="btn sun" id="av-save">${first ? 'Gotowe! Zaczynamy grać 🎉' : 'Zapisz postać'}</button>${first ? '' : '<button class="btn ghost" id="av-cancel">Anuluj</button>'}</div>
     </div></div>`);
+  const pick3d = () => a3 === 'own' ? own3d : a3 ? { id: a3 } : null;
   const paint = () => {
-    $('#st-av').innerHTML = avatarSVG(av, 'dance');
+    const p3 = pick3d();
+    if (shown3d !== a3) { // model 3D przeładowujemy tylko przy zmianie postaci
+      shown3d = a3; if (stage3d) { stage3d.dispose(); stage3d = null; }
+      const box = $('#st-av');
+      if (p3) { box.innerHTML = `<div class="av-slot st-slot">${pAv({ avatar3d: p3 })}</div>`; const want = a3; mount3D(box.firstChild, { avatar3d: p3 }, 'dance').then(c => { if (c && shown3d !== want) c.dispose(); else stage3d = c; }); }
+    }
+    if (!p3) $('#st-av').innerHTML = avatarSVG(av, 'dance');
+    $('#drawn').classList.toggle('dim', !!p3);
+    $('#chars3d').innerHTML = `<button class="ch3" data-c3="" aria-pressed="${!a3}" style="--sb:${STYLE[av.style].bg}">${avatarSVG(av)}Rysowana</button>`
+      + (own3d ? `<button class="ch3" data-c3="own" aria-pressed="${a3 === 'own'}">${pAv({ avatar3d: own3d })}Moja postać</button>` : '')
+      + CHARS3D.map(c => `<button class="ch3" data-c3="${c.id}" aria-pressed="${a3 === c.id}"><img class="av av-img" src="${esc(c.img)}" alt="" draggable="false">${esc(c.name)}</button>`).join('');
     $('#stage').style.setProperty('--stage', STYLE[av.style].bg);
-    $('#st-style').textContent = STYLE[av.style].name + (aiNote ? ' · ' + aiNote : '');
+    $('#st-style').textContent = p3 ? (a3 === 'own' ? 'Moja postać 3D' : CHAR3D[a3].name) + ' · postać 3D' : STYLE[av.style].name + (aiNote ? ' · ' + aiNote : '');
     $('#styles').innerHTML = STYLES.map(s => `<button class="sty" data-s="${s.id}" aria-pressed="${s.id === av.style}" style="--sb:${s.bg}">${avatarSVG(Object.assign({}, av, { style: s.id }))}${s.name}</button>`).join('');
     $('#sw-skin').innerHTML = SKINS.map((c, i) => `<button class="sw" data-skin="${i}" aria-pressed="${i === av.skin}" style="background:${c}" aria-label="Skóra ${SKIN_N[i]}"></button>`).join('');
     $('#sw-hair').innerHTML = HAIRS.map((c, i) => `<button class="sw" data-hair="${i}" aria-pressed="${i === av.hair}" style="background:${c}" aria-label="Włosy ${HAIR_N[i]}"></button>`).join('');
@@ -268,7 +286,8 @@ function vAvatar(first) {
   onCleanup(() => photos.forEach(p => URL.revokeObjectURL(p.url)));
   $('.maker').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
-    if (b.dataset.s) av.style = b.dataset.s;
+    if (b.dataset.c3 !== undefined) a3 = b.dataset.c3 || null;
+    else if (b.dataset.s) av.style = b.dataset.s;
     else if (b.dataset.skin) av.skin = +b.dataset.skin;
     else if (b.dataset.hair) av.hair = +b.dataset.hair;
     else if (b.dataset.eye) av.eye = +b.dataset.eye;
@@ -294,7 +313,7 @@ function vAvatar(first) {
   $('#av-save').onclick = async () => {
     const close = magic('Tworzę Twoją postać…');
     await new Promise(r => setTimeout(r, 1100));
-    await Store.put('kids', Object.assign({}, Store.kid(k.id), { avatar: Object.assign({}, av) }));
+    await Store.put('kids', Object.assign({}, Store.kid(k.id), { avatar: Object.assign({}, av), avatar3d: pick3d() }));
     close(); sound('win'); confetti(70); go(vChildHome);
   };
   const c = $('#av-cancel'); if (c) c.onclick = () => go(vChildHome);

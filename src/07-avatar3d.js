@@ -1,25 +1,43 @@
-/* ===================== awatary 3D (GLB z animacjami: Quaternius, Meshy) ===================== */
-// Postać z polem avatar3d = { glb, img, clips: { idle, cheer, jump, dance, wave, sad, walk } } (nazwy albo numery klipów w GLB).
-// Bez avatar3d używamy rysowanej postaci SVG.
+/* ===================== awatary 3D (GLB z animacjami: Quaternius, Kenney, Meshy) ===================== */
+// Postać z polem avatar3d = { id } (gotowa postać z CHARS3D) albo { glb, img, clips: { idle, cheer, jump, dance, wave, sad, walk } }
+// (nazwy klipów w GLB, same końcówki po „|” też pasują, albo numery). Bez avatar3d używamy rysowanej postaci SVG.
+const CL_MINI = { idle: 'idle', walk: 'walk', jump: 'jump', cheer: 'emote-yes', sad: 'emote-no', wave: 'emote-yes', dance: 'jump' };
+const CL_BIG = { idle: 'Idle', walk: 'Walk', jump: 'Jump', cheer: 'Yes', sad: 'No', wave: 'Wave', dance: 'Wave' };
+const CL_BLOB = { idle: 'Idle', walk: 'Walk', jump: 'Jump', cheer: 'Yes', sad: 'No', wave: 'Yes', dance: 'Dance' };
+const CL_CAT = { idle: 'Idle', walk: 'Walk', jump: 'Jump_Loop', cheer: 'Jump_Loop', sad: 'Idle_Eating', wave: 'Headbutt', dance: 'Run' };
+// Gotowe postacie CC0 (pliki w postacie/, licencja w postacie/CC0-1.0.txt): Kenney „Mini Characters” i Quaternius
+const CHARS3D = [
+  ['mini_female_b', 'Sportsmenka', CL_MINI], ['mini_female_c', 'Podróżniczka', CL_MINI], ['mini_female_e', 'Lekarka', CL_MINI], ['mini_female_f', 'Mechaniczka', CL_MINI],
+  ['mini_male_a', 'Okularnik', CL_MINI], ['mini_male_c', 'Policjant', CL_MINI], ['mini_male_e', 'Naukowiec', CL_MINI], ['mini_male_f', 'Ogrodnik', CL_MINI],
+  ['dino', 'Dinek', CL_BIG], ['alien_big', 'Kosmita', CL_BIG], ['yeti', 'Yeti', CL_BIG], ['mushroom_king', 'Grzybowy król', CL_BIG],
+  ['ninja_brute', 'Ninja', CL_BIG], ['blob_wizard', 'Czarodziej', CL_BLOB], ['blob_bird', 'Ptaszor', CL_BLOB], ['cat', 'Kotek', CL_CAT],
+].map(([id, name, clips]) => ({ id, name, clips, glb: `postacie/${id}.glb`, img: `postacie/${id}.png` }));
+const CHAR3D = Object.fromEntries(CHARS3D.map(c => [c.id, c]));
+// Pełny opis postaci 3D: gotowa postać z katalogu albo własny plik (np. z Meshy)
+function av3dOf(p) {
+  const a = p && p.avatar3d; if (!a) return null;
+  return a.id && CHAR3D[a.id] ? Object.assign({}, CHAR3D[a.id], a) : a;
+}
 function pAv(p, cls = '') {
-  const a = p && p.avatar3d;
+  const a = av3dOf(p);
   if (a && a.img) return `<img class="av av-img ${cls}" src="${esc(a.img)}" alt="" draggable="false">`;
   return avatarSVG(avOf(p), cls);
 }
 let THREE_LIB = null;
 function loadThree() {
-  if (!THREE_LIB) THREE_LIB = Promise.all([import('three'), import('three/addons/loaders/GLTFLoader.js')]).then(([T, L]) => ({ THREE: T, GLTFLoader: L.GLTFLoader }));
+  if (!THREE_LIB) THREE_LIB = Promise.all([import('three'), import('three/addons/loaders/GLTFLoader.js'), import('three/addons/libs/meshopt_decoder.module.js')])
+    .then(([T, L, M]) => ({ THREE: T, GLTFLoader: L.GLTFLoader, MeshoptDecoder: M.MeshoptDecoder }));
   return THREE_LIB;
 }
 const GLB_CACHE = {};
 // Zamienia obrazek postaci w elemencie el na żywy model 3D. Zwraca sterownik { play(name, once) } albo null.
 async function mount3D(el, p, start = 'idle') {
-  const a = p && p.avatar3d; if (!el || !a || !a.glb) return null;
+  const a = av3dOf(p); if (!el || !a || !a.glb) return null;
   let lib; try { lib = await loadThree(); } catch (e) { return null; }
-  const { THREE, GLTFLoader } = lib;
+  const { THREE, GLTFLoader, MeshoptDecoder } = lib;
   if (!el.isConnected) return null;
   let gltf;
-  try { gltf = await (GLB_CACHE[a.glb] = GLB_CACHE[a.glb] || new GLTFLoader().loadAsync(a.glb)); } catch (e) { delete GLB_CACHE[a.glb]; return null; }
+  try { gltf = await (GLB_CACHE[a.glb] = GLB_CACHE[a.glb] || new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(a.glb)); } catch (e) { delete GLB_CACHE[a.glb]; return null; }
   if (!el.isConnected) return null;
   const w = el.clientWidth || 180, h = el.clientHeight || Math.round(w * 1.3);
   let renderer; try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { return null; }
@@ -36,13 +54,13 @@ async function mount3D(el, p, start = 'idle') {
   const size = box.getSize(new THREE.Vector3()), mid = box.getCenter(new THREE.Vector3());
   model.position.sub(new THREE.Vector3(mid.x, box.min.y, mid.z));
   const cam = new THREE.PerspectiveCamera(30, w / h, 0.01, 100);
-  const dist = Math.max(size.y / (2 * Math.tan(15 * Math.PI / 180)), size.x * 1.2) * 1.12;
+  const tn = Math.tan(15 * Math.PI / 180), dist = Math.max(size.y / (2 * tn), size.x / (2 * tn * w / h)) * 1.08 + size.z / 2;
   cam.position.set(0, size.y * .55, dist); cam.lookAt(0, size.y * .5, 0);
   const mixer = new THREE.AnimationMixer(model), clips = gltf.animations || [];
   const clipOf = name => {
     const key = a.clips && a.clips[name];
     if (typeof key === 'number') return clips[key];
-    if (typeof key === 'string') return clips.find(c => c.name === key);
+    if (typeof key === 'string') return clips.find(c => c.name === key) || clips.find(c => c.name.split('|').pop().toLowerCase() === key.toLowerCase());
     return clips.find(c => c.name.toLowerCase().includes(name)) || null;
   };
   let current = null;
@@ -60,6 +78,8 @@ async function mount3D(el, p, start = 'idle') {
   const clock = new THREE.Clock(); let raf;
   const tick = () => { mixer.update(clock.getDelta()); model.rotation.y = Math.sin(clock.elapsedTime * .4) * .25; renderer.render(scene, cam); raf = requestAnimationFrame(tick); };
   tick();
-  onCleanup(() => { cancelAnimationFrame(raf); mixer.stopAllAction(); renderer.dispose(); renderer.forceContextLoss && renderer.forceContextLoss(); });
-  return { play };
+  let gone = false;
+  const dispose = () => { if (gone) return; gone = true; cancelAnimationFrame(raf); mixer.stopAllAction(); renderer.dispose(); renderer.forceContextLoss && renderer.forceContextLoss(); renderer.domElement.remove(); };
+  onCleanup(dispose);
+  return { play, dispose };
 }
