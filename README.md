@@ -8,7 +8,7 @@ Wersja online (claude.ai, wspólna baza i AI): https://claude.ai/artifact/3oz22K
 
 - **Konta dzieci**: e-mail rodzica + 4-cyfrowy PIN (wpisywany dwa razy), potwierdzenie e-maila kodem, „Zapomniałem PIN-u”, imię dziecka. Po 5 błędnych PIN-ach logowanie blokuje się na minutę.
 - **Awatary**: do 3 zdjęć dziecka, 20 stylów (superbohater, astronauta, kotek, dinozaur, wróżka, robot…), cała animowana postać (oddycha, mruga, macha, skacze przy dobrej odpowiedzi, tańczy po wygranej). Na claude.ai zdjęcia ogląda Claude i dobiera kolor skóry, włosów i oczu, fryzurę, okulary, piegi, spinkę. Zdjęcia nie są zapisywane, zapisuje się tylko narysowana postać.
-- **Gotowe postacie 3D**: 16 ruchomych postaci (8 ludzików Kenney „Mini Characters” i 8 stworków Quaternius, licencja CC0) z animacjami: macha, skacze, cieszy się, smuci, tańczy. Pliki `.glb` i miniatury są w `postacie/`, katalog w `src/07-avatar3d.js` (`CHARS3D`).
+- **Gotowe postacie 3D**: 6 ruchomych postaci (5 bohaterów KayKit „Adventurers” bez broni i robot z przykładów three.js, licencja CC0) z animacjami: macha, skacze, cieszy się, smuci. Pliki `.glb` i miniatury są w `postacie/`, katalog w `src/07-avatar3d.js` (`CHARS3D`).
 - **10 gier** (każda z 3 etapami, 8 pytań, 0–3 gwiazdki):
   | Gra | Obszar | Czego uczy |
   |---|---|---|

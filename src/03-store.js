@@ -72,7 +72,7 @@ function seedLocal() {
     const id = 'demo' + i;
     S.kids[id] = { id, demo: true, email: name.toLowerCase().replace('ś', 's') + '@demo.pl', pin: hp('1111'), verified: true, name, created: now - 20 * DAY,
       avatar: { style, skin, hair, hairStyle: hs, eye, glasses: !!glasses, freckles: !!freckles, bow: i % 3 === 0 } };
-    const c3 = { Bartek: 'mini_male_a', Zosia: 'mini_female_b', Kuba: 'dino', Lena: 'blob_wizard', 'Staś': 'mini_male_f' }[name];
+    const c3 = { Bartek: 'kk_knight', Zosia: 'kk_rogue', Kuba: 'robot', Lena: 'kk_mage', 'Staś': 'kk_barbarian' }[name];
     if (c3) S.kids[id].avatar3d = { id: c3 };
     const weak = games[i % 8];
     const n = R(7, 16);

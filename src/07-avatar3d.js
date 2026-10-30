@@ -1,16 +1,13 @@
 /* ===================== awatary 3D (GLB z animacjami: Quaternius, Kenney, Meshy) ===================== */
 // Postać z polem avatar3d = { id } (gotowa postać z CHARS3D) albo { glb, img, clips: { idle, cheer, jump, dance, wave, sad, walk } }
 // (nazwy klipów w GLB, same końcówki po „|” też pasują, albo numery). Bez avatar3d używamy rysowanej postaci SVG.
-const CL_MINI = { idle: 'idle', walk: 'walk', jump: 'jump', cheer: 'emote-yes', sad: 'emote-no', wave: 'emote-yes', dance: 'jump' };
-const CL_BIG = { idle: 'Idle', walk: 'Walk', jump: 'Jump', cheer: 'Yes', sad: 'No', wave: 'Wave', dance: 'Wave' };
-const CL_BLOB = { idle: 'Idle', walk: 'Walk', jump: 'Jump', cheer: 'Yes', sad: 'No', wave: 'Yes', dance: 'Dance' };
-const CL_CAT = { idle: 'Idle', walk: 'Walk', jump: 'Jump_Loop', cheer: 'Jump_Loop', sad: 'Idle_Eating', wave: 'Headbutt', dance: 'Run' };
-// Gotowe postacie CC0 (pliki w postacie/, licencja w postacie/CC0-1.0.txt): Kenney „Mini Characters” i Quaternius
+const CL_KAY = { idle: 'Idle', walk: 'Walking_A', jump: 'Jump_Full_Short', cheer: 'Cheer', sad: 'Hit_A', wave: 'Interact', dance: 'Cheer' };
+const CL_ROBOT = { idle: 'Idle', walk: 'Walking', jump: 'Jump', cheer: 'ThumbsUp', sad: 'No', wave: 'Wave', dance: 'Dance' };
+// Gotowe postacie CC0 (pliki w postacie/, licencja w postacie/CC0-1.0.txt): KayKit „Adventurers” (Kay Lousberg, bez broni)
+// i RobotExpressive (Tomás Laulhé, z przykładów three.js)
 const CHARS3D = [
-  ['mini_female_b', 'Sportsmenka', CL_MINI], ['mini_female_c', 'Podróżniczka', CL_MINI], ['mini_female_e', 'Lekarka', CL_MINI], ['mini_female_f', 'Mechaniczka', CL_MINI],
-  ['mini_male_a', 'Okularnik', CL_MINI], ['mini_male_c', 'Policjant', CL_MINI], ['mini_male_e', 'Naukowiec', CL_MINI], ['mini_male_f', 'Ogrodnik', CL_MINI],
-  ['dino', 'Dinek', CL_BIG], ['alien_big', 'Kosmita', CL_BIG], ['yeti', 'Yeti', CL_BIG], ['mushroom_king', 'Grzybowy król', CL_BIG],
-  ['ninja_brute', 'Ninja', CL_BIG], ['blob_wizard', 'Czarodziej', CL_BLOB], ['blob_bird', 'Ptaszor', CL_BLOB], ['cat', 'Kotek', CL_CAT],
+  ['kk_knight', 'Rycerz', CL_KAY], ['kk_mage', 'Czarodziej', CL_KAY], ['kk_rogue', 'Łuczniczka', CL_KAY],
+  ['kk_rogue_hooded', 'Leśna zwiadowczyni', CL_KAY], ['kk_barbarian', 'Wiking', CL_KAY], ['robot', 'Robocik', CL_ROBOT],
 ].map(([id, name, clips]) => ({ id, name, clips, glb: `postacie/${id}.glb.json`, img: `postacie/${id}.png` }));
 const CHAR3D = Object.fromEntries(CHARS3D.map(c => [c.id, c]));
 // Strona na claude.ai nie serwuje plików .glb, więc build.sh pakuje je do .glb.json ({ b64 }); zwykłe .glb też działają
