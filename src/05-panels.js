@@ -7,7 +7,7 @@ function vChildHome() {
   const today = Store.sessionsOf(k.id).filter(s => dayKey(s.date) === dayKey(Date.now())).reduce((a, s) => a + s.sec, 0);
   const open = hws.filter(h => { const p = hwProgress(k.id, h); return p.done < p.total; }).length;
   view(`<div class="wrap">
-    <div class="home-hero"><div class="home-av" style="--stage:${STYLE[k.avatar.style].bg}" id="h-av">${avatarSVG(k.avatar)}<button class="btn ghost small" id="h-edit">✏️ Zmień postać</button></div>
+    <div class="home-hero"><div class="home-av" style="--stage:${STYLE[k.avatar.style].bg}" id="h-av"><div class="av-slot" id="h-slot">${pAv(k)}</div><button class="btn ghost small" id="h-edit">✏️ Zmień postać</button></div>
       <div class="stack"><h1>Cześć, ${esc(k.name)}!</h1>
       <p class="lead">${open ? `Masz ${open} ${plural(open, 'zadanie', 'zadania', 'zadań')} od Pani. Zacznij od świecącego kółka!` : 'Wszystkie zadania zrobione. Wybierz dowolną grę!'}</p>
       <div class="row"><span class="stat-pill">⭐ <b>${points(k.id)}</b> punktów</span><span class="stat-pill">🔥 <b>${streak(k.id)}</b> ${plural(streak(k.id), 'dzień', 'dni', 'dni')} z rzędu</span><span class="stat-pill">⏱️ <b>${fmtSec(today)}</b> dziś</span></div></div></div>
@@ -18,7 +18,8 @@ function vChildHome() {
     <div class="games-grid">${GAMES.filter(g => HOME_FILTER === 'all' || g.subj === HOME_FILTER).map(g => gameCard(g, k.id)).join('')}</div>
   </div><footer class="foot wrap">Pamiętaj o przerwach: po 20 minutach grania warto się poruszać! 🤸</footer>`);
   $('#h-edit').onclick = () => go(vAvatar, false);
-  $('#h-av').onclick = e => { if (!e.target.closest('button')) react($('#h-av'), 'jump'); };
+  let ctl = null; mount3D($('#h-slot'), k, 'idle').then(c => ctl = c);
+  $('#h-av').onclick = e => { if (e.target.closest('button')) return; if (ctl) ctl.play(pick(['jump', 'wave', 'dance']), true); else react($('#h-av'), 'jump'); };
   $$('[data-f]').forEach(b => b.onclick = () => { HOME_FILTER = b.dataset.f; rerender(); });
   $$('.gcard').forEach(b => b.onclick = () => go(vLevels, b.dataset.g, { players: [k], mode: 'home' }));
   $$('.node').forEach(b => b.onclick = () => { const h = S.homework[b.dataset.hw], st = h.steps[+b.dataset.step]; go(vGame, st.game, st.level, { players: [Store.kid(k.id)], mode: 'home', hw: h.id }); });
@@ -45,7 +46,7 @@ function vLevels(gid, ctx) {
     <div class="row"><span class="gi" style="width:76px;height:76px;border-radius:22px;display:grid;place-items:center;font-size:44px;background:color-mix(in srgb,var(--gc) 18%, #fff)">${g.icon}</span>
     <div><h2 style="font-size:36px">${g.name}</h2><p class="muted"><b>${SUBJ[g.subj].n}</b> · ${g.desc}</p></div></div>
     <p style="font-size:19px">${g.how}</p>
-    <div class="row">${ctx.players.map(p => `<span class="me-chip"><span class="mini">${avatarSVG(avOf(p))}</span>${esc(p.name)}</span>`).join('')}</div>
+    <div class="row">${ctx.players.map(p => `<span class="me-chip"><span class="mini">${pAv(p)}</span>${esc(p.name)}</span>`).join('')}</div>
     ${partnerPick ? `<div><b>Z kim grasz?</b><div class="chips" id="partner" style="margin-top:6px"><button data-p="guest" aria-pressed="true">👨‍👩‍👧 Mama, tata albo rodzeństwo</button>${ctx.mode === 'lesson' ? Store.kids().filter(x => x.id !== p0.id).map(x => `<button data-p="${x.id}" aria-pressed="false">${esc(x.name)}</button>`).join('') : ''}</div></div>` : ''}
     <div class="levels">${g.levels.map((l, i) => { const b = p0.guest ? 0 : bestStars(p0.id, g.id, i + 1); return `<button class="lvl" data-l="${i + 1}"><b>Etap ${i + 1}</b><span>${l}</span><span class="st">${'★'.repeat(b)}${'☆'.repeat(3 - b)}</span></button>`; }).join('')}</div>
     <div><button class="btn ghost" id="lv-back">← Wróć</button></div></div></div>`);
@@ -69,11 +70,11 @@ function tBoard(el) {
   el.innerHTML = `<div id="pg"></div>
   <div class="row" style="justify-content:space-between;margin-top:20px"><h2 class="sec-title" style="margin:0">Kto gra przy tablicy?</h2><button class="btn sun small" id="b-rand">🎲 Losuj dziecko</button></div>
   <p class="muted" style="margin:6px 0 12px">Dotknij jednej postaci albo dwóch (do gry w parze). Wyniki zapiszą się dzieciom.</p>
-  ${kids.length ? `<div class="kids-grid">${kids.map(k => `<button class="kid" data-k="${k.id}" aria-pressed="${BOARD_SEL.includes(k.id)}" style="--sb:${STYLE[avOf(k).style].bg}">${BOARD_SEL.includes(k.id) ? `<span class="pick-n">${BOARD_SEL.indexOf(k.id) + 1}</span>` : ''}${k.demo ? '<span class="demo">przykład</span>' : ''}${avatarSVG(avOf(k))}${esc(k.name)}</button>`).join('')}</div>`
+  ${kids.length ? `<div class="kids-grid">${kids.map(k => `<button class="kid" data-k="${k.id}" aria-pressed="${BOARD_SEL.includes(k.id)}" style="--sb:${STYLE[avOf(k).style].bg}">${BOARD_SEL.includes(k.id) ? `<span class="pick-n">${BOARD_SEL.indexOf(k.id) + 1}</span>` : ''}${k.demo ? '<span class="demo">przykład</span>' : ''}${pAv(k)}${esc(k.name)}</button>`).join('')}</div>`
       : '<div class="card"><p><b>Nie ma jeszcze dzieci.</b> Gdy rodzice dodadzą dzieci na stronie głównej, ich postacie pojawią się tutaj.</p></div>'}
   <h2 class="sec-title" style="margin-top:26px">Wybierz grę</h2>
   <div class="games-grid">${GAMES.map(g => gameCard(g)).join('')}</div>
-  <div class="board-bar"><div class="sel">${BOARD_SEL.length ? BOARD_SEL.map(id => { const k = Store.kid(id); return `<span class="mini">${avatarSVG(avOf(k))}</span>${esc(k.name)}`; }).join(' + ') : 'Nikt nie jest wybrany'}</div>${BOARD_SEL.length ? '<button class="btn ghost small" id="b-clear">Wyczyść</button>' : ''}</div>`;
+  <div class="board-bar"><div class="sel">${BOARD_SEL.length ? BOARD_SEL.map(id => { const k = Store.kid(id); return `<span class="mini">${pAv(k)}</span>${esc(k.name)}`; }).join(' + ') : 'Nikt nie jest wybrany'}</div>${BOARD_SEL.length ? '<button class="btn ghost small" id="b-clear">Wyczyść</button>' : ''}</div>`;
   playground($('#pg'), kids);
   $$('.kid', el).forEach(b => b.onclick = () => {
     const id = b.dataset.k; if (BOARD_SEL.includes(id)) BOARD_SEL = BOARD_SEL.filter(x => x !== id); else { BOARD_SEL.push(id); if (BOARD_SEL.length > 2) BOARD_SEL.shift(); sound('tap'); }
@@ -100,7 +101,7 @@ function tHw(el) {
       <div class="row"><button class="btn ghost small" data-edit="${h.id}">Edytuj</button><button class="btn ghost small" data-del="${h.id}">Usuń</button></div></div>
       ${h.note ? `<p>${esc(h.note)}</p>` : ''}
       <div class="row">${h.steps.map((s, i) => { const g = G[s.game]; return g ? `<span class="step-chip" style="--gc:${SUBJ[g.subj].c}">${i + 1}. ${g.icon} ${g.name} · etap ${s.level} · ${'★'.repeat(s.min)}</span>` : ''; }).join('')}</div>
-      <div class="matrix">${rc.map(k => { const p = hwProgress(k.id, h); return `<div class="mrow"><span class="who"><span class="av-mini">${avatarSVG(avOf(k))}</span>${esc(k.name)}</span>${h.steps.map((s, i) => `<span class="cell ${stepDone(k.id, h, s) ? 'ok' : ''}">${stepDone(k.id, h, s) ? '✓' : i + 1}</span>`).join('')}<span class="muted" style="font-weight:800">${p.done}/${p.total}</span></div>`; }).join('')}</div></div>`; }).join('')}</div>`
+      <div class="matrix">${rc.map(k => { const p = hwProgress(k.id, h); return `<div class="mrow"><span class="who"><span class="av-mini">${pAv(k)}</span>${esc(k.name)}</span>${h.steps.map((s, i) => `<span class="cell ${stepDone(k.id, h, s) ? 'ok' : ''}">${stepDone(k.id, h, s) ? '✓' : i + 1}</span>`).join('')}<span class="muted" style="font-weight:800">${p.done}/${p.total}</span></div>`; }).join('')}</div></div>`; }).join('')}</div>`
       : '<div class="card"><p>Nie ma jeszcze zadań domowych. Dodaj pierwsze albo użyj zadań dopasowanych do każdego dziecka.</p></div>'}`;
   $$('.who .av-mini', el).forEach(x => { x.style.display = 'inline-block'; x.style.width = '34px'; x.style.height = '44px'; });
   $('#hw-new').onclick = () => go(vHwEdit, null);
@@ -124,7 +125,7 @@ function suggestHw() {
   });
   modal(`<div class="modal-h"><h3>Zadania dopasowane do dzieci</h3><button class="x" data-close aria-label="Zamknij">✕</button></div>
     <p class="muted">Dla każdego dziecka portal wybrał obszar z najsłabszymi wynikami (albo taki, w którym jeszcze nie grało). Możesz odznaczyć dzieci, którym nie chcesz zadawać.</p>
-    <div class="stack">${plans.map((p, i) => `<label class="row" style="background:#f6f8fb;border-radius:16px;padding:8px 12px"><input type="checkbox" checked data-i="${i}" style="width:22px;height:22px"><span class="who"><span style="display:inline-block;width:34px;height:44px">${avatarSVG(avOf(p.k))}</span>${esc(p.k.name)}</span><span class="tag" style="background:${SUBJ[p.subj].c};color:#fff">${SUBJ[p.subj].n}</span>${p.steps.map(s => `<span class="step-chip" style="--gc:${SUBJ[p.subj].c}">${G[s.game].icon} ${G[s.game].name} · etap ${s.level}</span>`).join('')}</label>`).join('')}</div>
+    <div class="stack">${plans.map((p, i) => `<label class="row" style="background:#f6f8fb;border-radius:16px;padding:8px 12px"><input type="checkbox" checked data-i="${i}" style="width:22px;height:22px"><span class="who"><span style="display:inline-block;width:34px;height:44px">${pAv(p.k)}</span>${esc(p.k.name)}</span><span class="tag" style="background:${SUBJ[p.subj].c};color:#fff">${SUBJ[p.subj].n}</span>${p.steps.map(s => `<span class="step-chip" style="--gc:${SUBJ[p.subj].c}">${G[s.game].icon} ${G[s.game].name} · etap ${s.level}</span>`).join('')}</label>`).join('')}</div>
     <label class="field">Termin<input type="date" id="sg-due" value="${dayKey(Date.now() + 7 * DAY)}"></label>
     <div class="row"><button class="btn" id="sg-ok">Zadaj zaznaczonym</button><button class="btn ghost" data-close>Anuluj</button></div>`, (m, close) => {
     $('#sg-ok', m).onclick = async () => {
@@ -191,7 +192,7 @@ function tStats(el) {
   <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Dziecko</th><th>Czas (7 dni)</th><th>Czas łącznie</th><th>Gry</th><th>Dobre odpowiedzi</th><th>Zadania domowe</th><th>Do poćwiczenia</th><th>Ostatnio</th></tr></thead><tbody>
   ${kids.map(k => { const ss = Store.sessionsOf(k.id), w = ss.filter(s => s.date >= wk); const cc = ss.reduce((a, s) => a + s.correct, 0), tt = ss.reduce((a, s) => a + s.total, 0);
     const hp_ = hwFor(k.id).map(h => hwProgress(k.id, h)); const hd = hp_.filter(p => p.done === p.total).length; const wkst = weakest(k.id); const acc = tt ? Math.round(cc / tt * 100) : 0;
-    return `<tr class="click" data-k="${k.id}"><td><span class="who"><span style="display:inline-block;width:34px;height:44px">${avatarSVG(avOf(k))}</span>${esc(k.name)}</span></td><td class="num">${fmtSec(w.reduce((a, s) => a + s.sec, 0))}</td><td class="num">${fmtSec(ss.reduce((a, s) => a + s.sec, 0))}</td><td class="num">${ss.length}</td>
+    return `<tr class="click" data-k="${k.id}"><td><span class="who"><span style="display:inline-block;width:34px;height:44px">${pAv(k)}</span>${esc(k.name)}</span></td><td class="num">${fmtSec(w.reduce((a, s) => a + s.sec, 0))}</td><td class="num">${fmtSec(ss.reduce((a, s) => a + s.sec, 0))}</td><td class="num">${ss.length}</td>
     <td><div class="row" style="gap:8px;flex-wrap:nowrap"><div class="bar" style="flex:1"><i style="width:${acc}%"></i></div><span class="num">${tt ? acc + '%' : '–'}</span></div></td><td class="num">${hd}/${hp_.length}</td><td><span class="subj-dot" style="--bc:${SUBJ[wkst].c}"></span>${SUBJ[wkst].n}</td><td>${ss[0] ? fmtDate(ss[0].date) : '–'}</td></tr>`; }).join('')}
   </tbody></table></div><p class="muted" style="margin-top:10px">Dotknij wiersza, żeby zobaczyć szczegóły dziecka.</p>`;
   $$('tr[data-k]', el).forEach(r => r.onclick = () => kidDetail(Store.kid(r.dataset.k)));
@@ -200,7 +201,7 @@ function kidDetail(k) {
   const ss = Store.sessionsOf(k.id), st = subjStats(k.id);
   const days = Array.from({ length: 14 }, (_, i) => { const t = Date.now() - (13 - i) * DAY; const key = dayKey(t); return { t, sec: ss.filter(s => dayKey(s.date) === key).reduce((a, s) => a + s.sec, 0) }; });
   const maxSec = Math.max(60, ...days.map(d => d.sec));
-  modal(`<div class="modal-h"><div class="who" style="font-size:24px;font-family:var(--display)"><span style="display:inline-block;width:56px;height:72px">${avatarSVG(avOf(k))}</span>${esc(k.name)}</div><button class="x" data-close aria-label="Zamknij">✕</button></div>
+  modal(`<div class="modal-h"><div class="who" style="font-size:24px;font-family:var(--display)"><span style="display:inline-block;width:56px;height:72px">${pAv(k)}</span>${esc(k.name)}</div><button class="x" data-close aria-label="Zamknij">✕</button></div>
     <p class="muted">${esc(k.email)} · ${ss.length} ${plural(ss.length, 'gra', 'gry', 'gier')} · łącznie ${fmtSec(ss.reduce((a, s) => a + s.sec, 0))}</p>
     <h4>Obszary</h4>
     <div class="stack" style="gap:8px">${Object.entries(SUBJ).map(([id, s]) => { const o = st[id], a = o.t ? Math.round(o.c / o.t * 100) : 0; return `<div class="row" style="flex-wrap:nowrap"><span style="width:130px;font-weight:800;flex:none">${s.n}</span><div class="bar" style="flex:1;--bc:${s.c}"><i style="width:${a}%"></i></div><span class="num" style="width:120px;flex:none;text-align:right">${o.t ? a + '%' : 'brak gier'} · ${fmtSec(o.sec)}</span></div>`; }).join('')}</div>
@@ -224,7 +225,7 @@ function tSet(el) {
     <div class="card stack"><h3 style="font-size:24px">Dzieci w klasie (${kids.length})</h3>
       ${demo ? `<div class="row"><span class="muted">${demo} ${plural(demo, 'przykładowe dziecko', 'przykładowe dzieci', 'przykładowych dzieci')} do pokazu.</span><button class="btn coral small" id="s-demo">Usuń przykładowe dzieci</button></div>` : ''}
       <div class="tbl-wrap" style="box-shadow:none;border:2px solid #eef2f8"><table class="tbl" style="min-width:520px"><thead><tr><th>Dziecko</th><th>E-mail rodzica</th><th>Stan</th><th></th></tr></thead><tbody>
-      ${kids.map(k => `<tr><td><span class="who">${k.avatar ? `<span style="display:inline-block;width:30px;height:40px">${avatarSVG(k.avatar)}</span>` : ''}${esc(k.name || '(bez imienia)')}</span></td><td>${esc(k.email)}</td><td>${k.verified ? (k.avatar ? 'gotowe' : 'bez postaci') : 'niepotwierdzony e-mail'}</td><td><button class="btn ghost small" data-delk="${k.id}">Usuń</button></td></tr>`).join('')}
+      ${kids.map(k => `<tr><td><span class="who">${k.avatar ? `<span style="display:inline-block;width:30px;height:40px">${pAv(k)}</span>` : ''}${esc(k.name || '(bez imienia)')}</span></td><td>${esc(k.email)}</td><td>${k.verified ? (k.avatar ? 'gotowe' : 'bez postaci') : 'niepotwierdzony e-mail'}</td><td><button class="btn ghost small" data-delk="${k.id}">Usuń</button></td></tr>`).join('')}
       </tbody></table></div></div>
     <div class="card stack"><h3 style="font-size:24px">Gdzie są dane</h3>
       <p>${Store.mode === 'db' ? 'Konta, postacie, wyniki i zadania są we wspólnej bazie tej strony na claude.ai. Widzą je osoby, którym udostępniono stronę. Zdjęć dzieci nie zapisujemy.' : 'Tryb pokazowy: wszystko zapisuje się tylko w tej przeglądarce.'}</p>

@@ -217,4 +217,4 @@ ${hp_.back}${hoodBack}${ears}<circle cx="60" cy="62" r="29" fill="${skin}"/>${hp
 ${glasses}${faceOver}${hat}${feet}</g></svg>`;
 }
 function avOf(p) { return (p && p.avatar) || DEFAULT_AV; }
-function react(el, cls, ms = 800) { if (!el) return; const s = el.querySelector('svg.av') || el; s.classList.remove('jump', 'oops'); void s.getBoundingClientRect(); s.classList.add(cls); setTimeout(() => s.classList.remove(cls), ms); }
+function react(el, cls, ms = 800) { if (!el) return; const s = el.querySelector('.av') || el; s.classList.remove('jump', 'oops'); void s.getBoundingClientRect(); s.classList.add(cls); setTimeout(() => s.classList.remove(cls), ms); }

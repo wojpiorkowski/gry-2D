@@ -10,7 +10,7 @@ function renderHeader() {
       <button class="chip-btn" id="h-mail" title="Poczta (prototyp)">📬 <span class="lbl">Poczta</span>${unread ? `<span class="cnt">${unread}</span>` : ''}</button>
       <button class="chip-btn" id="h-snd" title="Dźwięk">${muted ? '🔇' : '🔊'}</button>
       <button class="chip-btn" id="h-fs" title="Pełny ekran na tablicę">⛶ <span class="lbl">Tablica</span></button>
-      ${m ? `<span class="me-chip">${m.teacher ? '<span style="font-size:24px;padding:0 4px">👩‍🏫</span>' : `<span class="mini">${avatarSVG(avOf(m))}</span>`}<span>${m.teacher ? 'Nauczyciel' : esc(m.name || 'Nowe konto')}</span></span><button class="chip-btn" id="h-out">Wyloguj</button>` : ''}
+      ${m ? `<span class="me-chip">${m.teacher ? '<span style="font-size:24px;padding:0 4px">👩‍🏫</span>' : `<span class="mini">${pAv(m)}</span>`}<span>${m.teacher ? 'Nauczyciel' : esc(m.name || 'Nowe konto')}</span></span><button class="chip-btn" id="h-out">Wyloguj</button>` : ''}
     </div></div>`;
   $('#h-home').onclick = () => goHome();
   $('#h-mail').onclick = openMailbox;
@@ -38,7 +38,7 @@ function playground(el, kids) {
   el.innerHTML = `<div class="sun"></div><div class="cloud" style="top:30px;animation-duration:38s"></div><div class="cloud" style="top:80px;animation-duration:52s;animation-delay:-20s;transform:scale(.7)"></div>
   <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div><div class="kite" style="left:68%;top:26%">🪁</div><div class="flutter" style="left:12%;top:38%">🦋</div>
   ${kids.map((k, i) => { const x = n === 1 ? 50 : 7 + i * (86 / (n - 1)); const act = ballPair && ballPair.includes(i) ? 'catch' : acts[i % acts.length];
-    return `<div class="pk ${act === 'walk' ? 'walk' : act === 'hop' ? 'hop' : ''}" data-i="${i}" style="left:${x}%;--dx:${R(-50, 50)}px;--t:${R(6, 11)}s;--del:${-i * 1.1}s">${avatarSVG(avOf(k), act === 'dance' ? 'dance' : act === 'walk' ? 'walk' : '')}<span class="pk-name">${esc(k.name)}</span></div>`; }).join('')}
+    return `<div class="pk ${act === 'walk' ? 'walk' : act === 'hop' ? 'hop' : ''}" data-i="${i}" style="left:${x}%;--dx:${R(-50, 50)}px;--t:${R(6, 11)}s;--del:${-i * 1.1}s">${pAv(k, act === 'dance' ? 'dance' : act === 'walk' ? 'walk' : '')}<span class="pk-name">${esc(k.name)}</span></div>`; }).join('')}
   ${ballPair ? '<div class="ball"></div>' : ''}`;
   if (!ballPair) return;
   const ball = $('.ball', el), A = $(`.pk[data-i="${ballPair[0]}"]`, el), B = $(`.pk[data-i="${ballPair[1]}"]`, el);

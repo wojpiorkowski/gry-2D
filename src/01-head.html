@@ -3,6 +3,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <style>
 /* Layout: słoneczny plac zabaw. Niebo u góry, trawa na dole, karty jak grube naklejki z „wypukłym” dołem.
    Jeden świadomy, jasny świat dla dzieci (bez trybu ciemnego), więc wszystkie kolory są ustawione jawnie. */
@@ -334,6 +335,16 @@ footer.foot{padding-block:30px;color:var(--muted);font-size:14px}
 .lvl b{font-family:var(--display);font-size:26px}
 .lvl span{font-weight:700;color:var(--muted)}
 .lvl .st{color:#e0a800;font-size:22px;letter-spacing:2px}
+
+/* awatary 3D i obrazkowe */
+.av-slot{position:relative;display:block;width:100%}
+.home-av .av-slot{width:170px;height:220px;margin:0 auto}
+.game-side .av-slot{width:180px;height:234px}
+.results .av-slot{width:150px;height:195px}
+.av-slot .av3d{width:100%!important;height:100%!important;display:block}
+.av-img{display:block;width:100%;height:100%;object-fit:contain}
+.av-img.jump{animation:img-jump .7s ease-out}.av-img.oops{animation:av-shake .5s}.av-img.dance{animation:av-dance .8s ease-in-out infinite}
+@keyframes img-jump{35%{transform:translateY(-30px)}}
 
 /* coop */
 .bridge{position:relative;height:170px;border-radius:24px;overflow:hidden;background:linear-gradient(#bfe6ff,#e8f6ff);box-shadow:var(--shadow)}

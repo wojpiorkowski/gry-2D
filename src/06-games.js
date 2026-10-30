@@ -168,10 +168,11 @@ function gameShell(g, level, ctx, N) {
   view(`<div class="wrap game" style="--gc:${SUBJ[g.subj].c}">
     <div class="game-top"><button class="btn ghost small" id="g-quit">✕ Wyjdź</button><div class="game-title"><span>${g.icon}</span>${g.name}<small>Etap ${level}</small></div>
     <button class="say-btn" id="g-say">🔊 Przeczytaj</button></div>
-    <div class="trail"><div class="stones">${'<i class="stone"></i>'.repeat(N)}</div><span class="goal">🎁</span>${ps.map((p, i) => `<div class="tav" data-i="${i}" style="left:${4 + i * 3}%">${avatarSVG(avOf(p), 'walk')}</div>`).join('')}</div>
+    <div class="trail"><div class="stones">${'<i class="stone"></i>'.repeat(N)}</div><span class="goal">🎁</span>${ps.map((p, i) => `<div class="tav" data-i="${i}" style="left:${4 + i * 3}%">${pAv(p, 'walk')}</div>`).join('')}</div>
     <div class="game-main"><div class="game-area" id="area"></div>
-    <div class="game-side"><div class="bubble" id="bubble">Do dzieła!</div><div id="side-av">${ps.map(p => avatarSVG(avOf(p))).join('')}</div>${ps.map(p => `<b>${esc(p.name)}</b>`).join(' i ')}</div></div></div>`);
-  if (ps.length > 1) $$('#side-av .av').forEach(a => a.style.width = '110px');
+    <div class="game-side"><div class="bubble" id="bubble">Do dzieła!</div><div id="side-av">${ps.map((p, i) => `<div class="av-slot" data-i="${i}">${pAv(p)}</div>`).join('')}</div>${ps.map(p => `<b>${esc(p.name)}</b>`).join(' i ')}</div></div></div>`);
+  if (ps.length > 1) $$('#side-av .av-slot').forEach(a => a.style.width = '110px');
+  const ctl = []; $$('#side-av .av-slot').forEach((el, i) => mount3D(el, ps[i], 'idle').then(c => ctl[i] = c));
   let sayText = '';
   $('#g-say').onclick = () => speak(sayText);
   return {
@@ -179,7 +180,7 @@ function gameShell(g, level, ctx, N) {
     setSay(t) { sayText = t; },
     step(i, ok) { const st = $$('.stone')[i]; if (st) st.classList.add(ok ? 'ok' : 'bad'); },
     move(k) { $$('.tav').forEach((t, i) => t.style.left = `calc(${4 + i * 3}% + ${k / N} * 84%)`); },
-    cheer(ok, text) { $('#bubble').textContent = text; $$('#side-av .av, .tav .av').forEach(a => { a.classList.remove('jump', 'oops'); void a.getBoundingClientRect(); a.classList.add(ok ? 'jump' : 'oops'); setTimeout(() => a.classList.remove('jump', 'oops'), 800); }); },
+    cheer(ok, text) { $('#bubble').textContent = text; ctl.forEach(c => c && c.play(ok ? pick(['cheer', 'jump']) : 'sad', true)); $$('#side-av .av, .tav .av').forEach(a => { a.classList.remove('jump', 'oops'); void a.getBoundingClientRect(); a.classList.add(ok ? 'jump' : 'oops'); setTimeout(() => a.classList.remove('jump', 'oops'), 800); }); },
     onQuit(f) { $('#g-quit').onclick = f; },
   };
 }
@@ -216,11 +217,12 @@ function vGame(gid, level, ctx) {
 async function results(g, level, ctx, r, area) {
   await recordSession(ctx.players, { game: g.id, level, correct: r.correct, total: r.total, stars: r.stars, sec: r.sec, done: true, mode: ctx.mode, hw: ctx.hw || null, per: r.per });
   const title = r.stars === 3 ? 'Mistrzostwo!' : r.stars === 2 ? 'Świetnie!' : r.stars === 1 ? 'Dobra robota!' : 'Ćwiczymy dalej!';
-  area.innerHTML = `<div class="results"><div class="avs">${ctx.players.map(p => avatarSVG(avOf(p), 'dance')).join('')}</div><h2>${title}</h2>
+  area.innerHTML = `<div class="results"><div class="avs">${ctx.players.map((p, i) => `<div class="av-slot" data-i="${i}">${pAv(p, 'dance')}</div>`).join('')}</div><h2>${title}</h2>
     <div class="stars">${[1, 2, 3].map(n => `<span class="${n <= r.stars ? 'on' : ''}">★</span>`).join('')}</div>
     <p style="font-size:20px;font-weight:800">${r.per ? ctx.players.map(p => `${esc(p.name)}: ${(r.per[p.id] || r).correct}/${(r.per[p.id] || r).total}`).join(' · ') : `${r.correct} z ${r.total} dobrze`} · ${fmtSec(r.sec)}</p>
     <p class="muted">+${r.correct * 10 + r.stars * 5} punktów${ctx.players.some(p => p.guest) ? ' (gość nie zbiera punktów)' : ''}</p>
     <div class="row" style="justify-content:center"><button class="btn" id="r-again">Zagraj jeszcze raz</button>${level < 3 ? '<button class="btn sun" id="r-next">Następny etap →</button>' : ''}<button class="btn ghost" id="r-back">Wróć</button></div></div>`;
+  $$('.results .av-slot', area).forEach((el, i) => mount3D(el, ctx.players[i], r.stars ? 'dance' : 'idle'));
   if (r.stars) { sound('win'); confetti(r.stars * 30); }
   $('#r-again').onclick = () => go(vGame, g.id, level, ctx);
   const n = $('#r-next'); if (n) n.onclick = () => go(vGame, g.id, level + 1, ctx);
@@ -265,10 +267,10 @@ function playBridge(g, level, ctx) {
   view(`<div class="wrap game" style="--gc:var(--coop)">
     <div class="game-top"><button class="btn ghost small" id="g-quit">✕ Wyjdź</button><div class="game-title"><span>🌉</span>Most przyjaźni<small>Etap ${level}</small></div></div>
     <div class="bridge"><div class="river"></div><div class="cliff L"></div><div class="cliff R"></div><div class="planks">${'<i class="plank"></i>'.repeat(PL)}</div>
-      <div class="bav" id="bav0" style="left:8%">${avatarSVG(avOf(ps[0]), 'walk')}</div><div class="bav" id="bav1" style="left:92%">${avatarSVG(avOf(ps[1]), 'walk')}</div></div>
+      <div class="bav" id="bav0" style="left:8%">${pAv(ps[0], 'walk')}</div><div class="bav" id="bav1" style="left:92%">${pAv(ps[1], 'walk')}</div></div>
     <div class="duo"><div class="pane" id="pane0" style="--pc:#ff8a3d"></div><div class="pane" id="pane1" style="--pc:#7a5cff"></div></div></div>`);
   $('#g-quit').onclick = async () => { if (st[0].t || st[1].t) await recordSession(ps, { game: g.id, level, correct: 0, total: 0, stars: 0, sec: (Date.now() - t0) / 1000 | 0, done: false, mode: ctx.mode, per: { [ps[0].id]: { correct: st[0].c, total: st[0].t }, [ps[1].id]: { correct: st[1].c, total: st[1].t } } }); backTo(ctx); };
-  const head = i => `<div class="pane-h">${avatarSVG(avOf(ps[i]))}<span>${esc(ps[i].name)}</span><button class="say-btn" data-say style="margin-left:auto">🔊</button></div>`;
+  const head = i => `<div class="pane-h">${pAv(ps[i])}<span>${esc(ps[i].name)}</span><button class="say-btn" data-say style="margin-left:auto">🔊</button></div>`;
   const ask = i => {
     const pane = $('#pane' + i); st[i].ready = false;
     let q; do { q = gens[(round + i * 3 + R(0, 1)) % gens.length](level); } while (q.mount);
