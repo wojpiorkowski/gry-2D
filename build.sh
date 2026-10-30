@@ -12,3 +12,7 @@ cd "$(dirname "$0")"
   echo 'boot();'
   echo '</script>'
 } > index.html
+# Strona na claude.ai nie serwuje .glb: każdą postać pakujemy też jako .glb.json (base64)
+for f in postacie/*.glb; do
+  printf '{"b64":"%s"}' "$(base64 -w0 "$f")" > "$f.json"
+done
