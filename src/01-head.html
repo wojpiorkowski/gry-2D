@@ -3,6 +3,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <style>
 /* Layout: słoneczny plac zabaw. Niebo u góry, trawa na dole, karty jak grube naklejki z „wypukłym” dołem.
    Jeden świadomy, jasny świat dla dzieci (bez trybu ciemnego), więc wszystkie kolory są ustawione jawnie. */
@@ -187,6 +188,12 @@ footer.foot{padding-block:30px;color:var(--muted);font-size:14px}
 .sty{border:0;border-radius:18px;padding:8px 6px 10px;background:var(--sb);box-shadow:0 4px 0 rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:800;font-size:13px;min-width:0}
 .sty .av{width:64px;height:84px}
 .sty[aria-pressed="true"]{outline:4px solid var(--ink);outline-offset:2px}
+.chars3d{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.ch3{border:0;border-radius:18px;padding:8px 6px 10px;background:var(--sb,#eef4fb);box-shadow:0 4px 0 rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:800;font-size:13px;min-width:0}
+.ch3 .av{width:64px;height:80px}
+.ch3[aria-pressed="true"]{outline:4px solid var(--ink);outline-offset:2px}
+.drawn.dim{opacity:.5}
+.stage .st-slot{width:min(240px,70%);height:300px;margin:0 auto}.stage .st-slot .av{width:100%;height:100%}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
 .sw{width:40px;height:40px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #d5dde8}
 .sw[aria-pressed="true"]{box-shadow:0 0 0 4px var(--ink)}
@@ -334,6 +341,16 @@ footer.foot{padding-block:30px;color:var(--muted);font-size:14px}
 .lvl b{font-family:var(--display);font-size:26px}
 .lvl span{font-weight:700;color:var(--muted)}
 .lvl .st{color:#e0a800;font-size:22px;letter-spacing:2px}
+
+/* awatary 3D i obrazkowe */
+.av-slot{position:relative;display:block;width:100%}
+.home-av .av-slot{width:170px;height:220px;margin:0 auto}
+.game-side .av-slot{width:180px;height:234px}
+.results .av-slot{width:150px;height:195px}
+.av-slot .av3d{width:100%!important;height:100%!important;display:block}
+.av-img{display:block;width:100%;height:100%;object-fit:contain}
+.av-img.jump{animation:img-jump .7s ease-out}.av-img.oops{animation:av-shake .5s}.av-img.dance{animation:av-dance .8s ease-in-out infinite}
+@keyframes img-jump{35%{transform:translateY(-30px)}}
 
 /* coop */
 .bridge{position:relative;height:170px;border-radius:24px;overflow:hidden;background:linear-gradient(#bfe6ff,#e8f6ff);box-shadow:var(--shadow)}
