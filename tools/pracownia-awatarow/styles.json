@@ -1,0 +1,32 @@
+{
+  "base": "Create a full-body 3D character render of the child from the reference photos, in the style of a modern Pixar / Disney animated film: big expressive eyes, soft subsurface-scattered skin, detailed stylized hair, chibi proportions (head about one third of body height), warm cinematic lighting, high detail, 8k render look. Keep the child's real likeness: face shape, skin tone, eye color, hair color and hairstyle, glasses or freckles if present. Friendly happy expression, age-appropriate and wholesome. Full body visible from head to feet, standing, facing the camera, arms relaxed, centered, with some empty space around the character. Plain smooth light background in a single soft color ({bg}), no text, no logo, no other people. Costume and theme: {costume}",
+  "companion": " A small matching cute animal companion ({pet}) sits next to the character's feet.",
+  "styles": [
+    { "id": "kotek", "name": "Kotek", "bg": "pale mint", "pet": "green kitten", "costume": "a playful cat hybrid: soft cat ears that grow out of the hair, a long fluffy tail, a cozy green outfit with cat-paw patterns; hair and ears share a pastel green tint." },
+    { "id": "smoczek", "name": "Smoczek", "bg": "pale lavender", "pet": "baby dragon", "costume": "a friendly little dragon hybrid: small rounded horns, tiny wings on the back, a scaly tail with soft spikes, a purple and teal dragon onesie." },
+    { "id": "jednorozec", "name": "Jednorożec", "bg": "pale pink", "pet": "tiny unicorn foal", "costume": "a unicorn hybrid: a sparkly golden horn on the forehead, rainbow streaks in the hair, a white and lilac outfit with stars." },
+    { "id": "lisek", "name": "Lisek", "bg": "pale peach", "pet": "fox cub", "costume": "a fox hybrid: orange fox ears and a big fluffy orange tail with a white tip, an autumn-colored outfit with leaves." },
+    { "id": "piesek", "name": "Piesek", "bg": "pale sky blue", "pet": "golden puppy", "costume": "a puppy hybrid: floppy dog ears, a wagging tail, a red collar with a bone tag, a cozy caramel hoodie." },
+    { "id": "panda", "name": "Panda", "bg": "pale green", "pet": "baby panda", "costume": "a panda hybrid: round black-and-white panda ears, a black-and-white onesie, holding a bamboo stick." },
+    { "id": "krolik", "name": "Króliczek", "bg": "pale yellow", "pet": "white bunny", "costume": "a bunny hybrid: long soft rabbit ears, a pompom tail, a pastel spring outfit with carrots." },
+    { "id": "pingwin", "name": "Pingwinek", "bg": "pale icy blue", "pet": "baby penguin", "costume": "a penguin hybrid: a black-and-white penguin suit with orange boots, a knitted winter scarf, snowflakes around." },
+    { "id": "sowa", "name": "Mądra sowa", "bg": "pale beige", "pet": "small owl", "costume": "an owl hybrid: feathered ear tufts, small feathered wings on the arms, round scholar glasses, a brown academic cape, carrying a book." },
+    { "id": "rybka", "name": "Syrenka", "bg": "pale turquoise", "pet": "little clownfish in a bubble", "costume": "a sea creature hybrid: shimmering fin-like ears, a scaly turquoise outfit, shells and pearls, water bubbles around." },
+    { "id": "astronauta", "name": "Astronauta", "bg": "pale navy blue", "pet": "tiny robot dog", "costume": "a young astronaut in a white and orange space suit with patches, helmet held under the arm, small planets floating around." },
+    { "id": "superbohater", "name": "Superbohater", "bg": "pale sky blue", "pet": "puppy wearing a cape", "costume": "a superhero with a flowing red cape, a blue suit with a golden star emblem and a small eye mask, heroic pose." },
+    { "id": "czarodziej", "name": "Czarodziej", "bg": "pale violet", "pet": "black kitten", "costume": "a young wizard with a starry purple robe, a pointy hat, and a glowing wand with sparkles." },
+    { "id": "rycerz", "name": "Rycerz", "bg": "pale grey", "pet": "small pony", "costume": "a brave little knight in shiny cartoon armor with a red plume and a wooden shield with a heart emblem." },
+    { "id": "krolewna", "name": "Królewna / Królewicz", "bg": "pale rose", "pet": "royal corgi", "costume": "royalty with a small golden crown, an elegant pastel royal outfit with a cape." },
+    { "id": "pirat", "name": "Pirat", "bg": "pale sand", "pet": "parrot", "costume": "a friendly pirate with a red bandana, striped shirt, a toy wooden sword and a treasure map." },
+    { "id": "odkrywca", "name": "Odkrywca dżungli", "bg": "pale jungle green", "pet": "baby monkey", "costume": "a jungle explorer with a safari hat, a khaki vest, binoculars and a magnifying glass." },
+    { "id": "robot", "name": "Robot", "bg": "pale steel blue", "pet": "tiny drone", "costume": "a cute robot hybrid: a shiny silver suit with glowing buttons, a small antenna with a light bulb, metallic boots." },
+    { "id": "pilkarz", "name": "Piłkarz", "bg": "pale grass green", "pet": "puppy with a ball", "costume": "a young football player in a white and red Poland-style jersey with number 2, shorts, and a football." },
+    { "id": "wrozka", "name": "Wróżka / Elf", "bg": "pale spring green", "pet": "tiny fawn", "costume": "a forest fairy or elf with pointy ears, translucent butterfly wings, a leaf outfit and a flower crown." }
+  ],
+  "motions": {
+    "idle": "The character stands in place, breathing gently, blinking, and slightly swaying with a soft smile. The camera is completely static. Plain background stays unchanged. Seamless loop.",
+    "cheer": "The character jumps up with joy, raises both arms and cheers happily, then lands in the same spot. The camera is completely static. Plain background stays unchanged.",
+    "oops": "The character makes a cute, gentle 'oops' face, shrugs and scratches the head, then smiles again encouragingly. The camera is completely static. Plain background stays unchanged.",
+    "dance": "The character does a short happy victory dance in place, spinning once and waving. The camera is completely static. Plain background stays unchanged."
+  }
+}
